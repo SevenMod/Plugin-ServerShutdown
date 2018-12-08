@@ -147,6 +147,11 @@ namespace SevenMod.Plugin.ServerShutdown
         /// <param name="e">An <see cref="AdminCommandEventArgs"/> object containing the event data.</param>
         private void OnVoteShutdownExecuted(object sender, AdminCommandEventArgs e)
         {
+            if (!this.enableVote.AsBool)
+            {
+                return;
+            }
+
             if (VoteManager.StartVote("Shut down the server?"))
             {
                 VoteManager.CurrentVote.Ended += this.OnShutdownVoteEnded;
