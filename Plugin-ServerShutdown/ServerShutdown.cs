@@ -200,6 +200,12 @@ namespace SevenMod.Plugin.ServerShutdown
 
                 ChatHelper.SendToAll($"[FF0000]Warning: Server shutting down in [b]{this.countdown} minutes[/b][-]");
 
+                if (this.countdown == 1)
+                {
+                    ChatHelper.SendToAll("Saving world state...");
+                    SdtdConsole.Instance.ExecuteSync("saveworld", null);
+                }
+
                 this.countdown--;
             }
             else
