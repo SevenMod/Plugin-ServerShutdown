@@ -9,8 +9,10 @@ namespace SevenMod.Plugin.ServerShutdown
     using System.Collections.Generic;
     using System.Timers;
     using SevenMod.Chat;
+    using SevenMod.Console;
     using SevenMod.ConVar;
     using SevenMod.Core;
+    using SevenMod.Voting;
 
     /// <summary>
     /// Plugin that schedules automatic server shutdowns and enables shutdown votes.
@@ -26,6 +28,11 @@ namespace SevenMod.Plugin.ServerShutdown
         /// The value of the ServerShutdownEnableVote <see cref="ConVar"/>.
         /// </summary>
         private ConVarValue enableVote;
+
+        /// <summary>
+        /// The value of the ServerShutdownVotePercent <see cref="ConVar"/>.
+        /// </summary>
+        private ConVarValue votePercent;
 
         /// <summary>
         /// The list of automatic shutdown times as the number of minutes since midnight.
@@ -57,11 +64,13 @@ namespace SevenMod.Plugin.ServerShutdown
         {
             this.schedule = this.CreateConVar("ServerShutdownSchedule", string.Empty, "The automatic shutdown schedule in the format HH:MM. Separate multiple times with commas.").Value;
             this.enableVote = this.CreateConVar("ServerShutdownEnableVote", "True", "Enable the voteshutdown admin command.").Value;
+            this.votePercent = this.CreateConVar("ServerShutdownVotePercent", "0.60", "The percentage of players that must vote yes for a successful shutdown vote.", true, 0, true, 1).Value;
 
             this.AutoExecConfig(true, "ServerShutdown");
 
             this.schedule.ConVar.ValueChanged += this.OnScheduleChanged;
-            this.enableVote.ConVar.ValueChanged += this.OnEnableVoteChanged;
+
+            this.RegAdminCmd("voteshutdown", Admin.AdminFlags.Vote, "Starts a vote to shut down the server").Executed += this.OnVoteShutdownExecuted;
         }
 
         /// <inheritdoc/>
@@ -109,12 +118,43 @@ namespace SevenMod.Plugin.ServerShutdown
         }
 
         /// <summary>
-        /// Called when the value of the ServerShutdownEnableVote <see cref="ConVar"/> is changed.
+        /// Called when the voteshutdown admin command is executed.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
-        /// <param name="e">A <see cref="ConVarChangedEventArgs"/> object containing the event data.</param>
-        private void OnEnableVoteChanged(object sender, ConVarChangedEventArgs e)
+        /// <param name="e">An <see cref="AdminCommandEventArgs"/> object containing the event data.</param>
+        private void OnVoteShutdownExecuted(object sender, AdminCommandEventArgs e)
         {
+            if (VoteManager.StartVote("Shut down the server?"))
+            {
+                VoteManager.CurrentVote.Ended += this.OnShutdownVoteEnded;
+            }
+        }
+
+        /// <summary>
+        /// Called when a shutdown vote ends.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="VoteEndedEventArgs"/> object containing the event data.</param>
+        private void OnShutdownVoteEnded(object sender, VoteEndedEventArgs e)
+        {
+            if (e.Percents[0] >= this.votePercent.AsFloat)
+            {
+                ChatHelper.SendToAll(string.Format("Vote succeeded with {0:P2} of the vote.", e.Percents[0]), "Vote");
+                ChatHelper.SendToAll("Shutting down in 30 seconds...");
+                if (this.shutdownTimer != null)
+                {
+                    this.shutdownTimer.Dispose();
+                }
+
+                this.countdown = 0;
+                this.shutdownTimer = new Timer(30000);
+                this.shutdownTimer.Elapsed += this.OnShutdownTimerElapsed;
+                this.shutdownTimer.Enabled = true;
+            }
+            else
+            {
+                ChatHelper.SendToAll(string.Format("Vote failed with {0:P2} of the vote.", e.Percents[0]), "Vote");
+            }
         }
 
         /// <summary>
