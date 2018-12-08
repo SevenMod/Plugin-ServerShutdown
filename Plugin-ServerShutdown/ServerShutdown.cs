@@ -132,13 +132,13 @@ namespace SevenMod.Plugin.ServerShutdown
             var time = this.shutdownSchedule.Find((int t) => (t - 5) >= DateTime.Now.TimeOfDay.TotalMinutes);
             time = time == 0 ? this.shutdownSchedule[0] : time;
 
-            var dt = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, time / 60, time % 60, 0);
+            var dt = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, time / 60, time % 60, 0).AddMinutes(-5);
             if (dt < DateTime.Now)
             {
                 dt = dt.AddDays(1);
             }
 
-            this.shutdownTimer = new Timer(dt.AddMinutes(-5).Subtract(DateTime.Now).TotalMilliseconds);
+            this.shutdownTimer = new Timer(dt.Subtract(DateTime.Now).TotalMilliseconds);
             this.shutdownTimer.Elapsed += this.OnShutdownTimerElapsed;
             this.shutdownTimer.Enabled = true;
         }
