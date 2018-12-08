@@ -112,7 +112,30 @@ namespace SevenMod.Plugin.ServerShutdown
 
             if (this.shutdownSchedule.Count > 0)
             {
-                this.shutdownSchedule.Sort();
+                if (this.shutdownSchedule.Count > 1)
+                {
+                    this.shutdownSchedule.Sort();
+                    for (var i = 0; i < this.shutdownSchedule.Count; i++)
+                    {
+                        int diff;
+                        if (i == 0)
+                        {
+                            diff = (1440 - this.shutdownSchedule[this.shutdownSchedule.Count - 1]) + this.shutdownSchedule[0];
+                        }
+                        else
+                        {
+                            diff = this.shutdownSchedule[i] - this.shutdownSchedule[i - 1];
+                        }
+
+                        if (diff <= 5)
+                        {
+                            this.LogError($"Removing scheduled time {this.shutdownSchedule[i] / 60:D2}:{this.shutdownSchedule[i] % 60:D2} because it is not more than 5 minutes after the previous time");
+                            this.shutdownSchedule.RemoveAt(i);
+                            i--;
+                        }
+                    }
+                }
+
                 this.ScheduleNext();
             }
         }
