@@ -260,10 +260,13 @@ namespace SevenMod.Plugin.ServerShutdown
                 this.shutdownTimer.Elapsed += this.OnShutdownTimerElapsed;
                 this.shutdownTimer.Enabled = true;
 
-                ChatHelper.SendToAll($"[FF0000]Warning: Server shutting down in [b]{this.countdown} minutes[/b][-]");
-
-                if (this.countdown == 1)
+                if (this.countdown > 1)
                 {
+                    ChatHelper.SendToAll($"[FFFF00]Warning: Server shutting down in [i]{this.countdown} minutes[/i][-]");
+                }
+                else
+                {
+                    ChatHelper.SendToAll("[FF0000]Warning: Server shutting down in [i]1 minute[/i][-]");
                     ChatHelper.SendToAll("Saving world state...");
                     SdtdConsole.Instance.ExecuteSync("saveworld", null);
                 }
