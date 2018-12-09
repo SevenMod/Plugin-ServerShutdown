@@ -200,12 +200,12 @@ namespace SevenMod.Plugin.ServerShutdown
             if (this.shutdownInProgress)
             {
                 this.ScheduleNext();
-                ChatHelper.ReplyToCommand(e.SenderInfo, $"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} cancelled");
-                ChatHelper.SendToAll($"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} cancelled");
+                this.ReplyToCommand(e.SenderInfo, $"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} cancelled");
+                this.PrintToChatAll($"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} cancelled");
             }
             else
             {
-                ChatHelper.ReplyToCommand(e.SenderInfo, $"No {(this.autoRestart.AsBool ? "restart" : "shutdown")} in progress");
+                this.ReplyToCommand(e.SenderInfo, $"No {(this.autoRestart.AsBool ? "restart" : "shutdown")} in progress");
             }
         }
 
@@ -218,8 +218,8 @@ namespace SevenMod.Plugin.ServerShutdown
         {
             if (e.Percents[0] >= this.votePercent.AsFloat)
             {
-                ChatHelper.SendToAll(string.Format("Vote succeeded with {0:P2} of the vote.", e.Percents[0]), "Vote");
-                ChatHelper.SendToAll($"{(this.autoRestart.AsBool ? "Restarting" : "Shutting down")} in 30 seconds...");
+                this.PrintToChatAll(string.Format("Vote succeeded with {0:P2} of the vote.", e.Percents[0]), "Vote");
+                this.PrintToChatAll($"{(this.autoRestart.AsBool ? "Restarting" : "Shutting down")} in 30 seconds...");
                 if (this.shutdownTimer != null)
                 {
                     this.shutdownTimer.Dispose();
@@ -233,7 +233,7 @@ namespace SevenMod.Plugin.ServerShutdown
             }
             else
             {
-                ChatHelper.SendToAll(string.Format("Vote failed with {0:P2} of the vote.", e.Percents[0]), "Vote");
+                this.PrintToChatAll(string.Format("Vote failed with {0:P2} of the vote.", e.Percents[0]), "Vote");
             }
         }
 
@@ -289,20 +289,20 @@ namespace SevenMod.Plugin.ServerShutdown
 
                 if (this.countdown > 1)
                 {
-                    ChatHelper.SendToAll($"[FFFF00]Warning: Server {(this.autoRestart.AsBool ? "restarting" : "shutting down")} in [i]{this.countdown} minutes[/i][-]");
+                    this.PrintToChatAll($"[FFFF00]Warning: Server {(this.autoRestart.AsBool ? "restarting" : "shutting down")} in [i]{this.countdown} minutes[/i][-]");
                 }
                 else
                 {
-                    ChatHelper.SendToAll($"[FF0000]Warning: Server {(this.autoRestart.AsBool ? "restarting" : "shutting down")} down in [i]1 minute[/i][-]");
-                    ChatHelper.SendToAll("Saving world state...");
-                    SdtdConsole.Instance.ExecuteSync("saveworld", null);
+                    this.PrintToChatAll($"[FF0000]Warning: Server {(this.autoRestart.AsBool ? "restarting" : "shutting down")} down in [i]1 minute[/i][-]");
+                    this.PrintToChatAll("Saving world state...");
+                    this.ServerCommand("saveworld");
                 }
 
                 this.countdown--;
             }
             else
             {
-                SdtdConsole.Instance.ExecuteSync("shutdown", null);
+                this.ServerCommand("shutdown");
                 this.ScheduleNext();
             }
         }
