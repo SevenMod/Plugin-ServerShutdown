@@ -289,11 +289,11 @@ namespace SevenMod.Plugin.ServerShutdown
 
                 if (this.countdown > 1)
                 {
-                    this.PrintToChatAll($"[FFFF00]Warning: Server {(this.autoRestart.AsBool ? "restarting" : "shutting down")} in [i]{this.countdown} minutes[/i][-]");
+                    this.PrintToChatAll($"[{Colors.Yellow}]Warning: Server {(this.autoRestart.AsBool ? "restarting" : "shutting down")} in [i]{this.countdown} minutes[/i][-]");
                 }
                 else
                 {
-                    this.PrintToChatAll($"[FF0000]Warning: Server {(this.autoRestart.AsBool ? "restarting" : "shutting down")} down in [i]1 minute[/i][-]");
+                    this.PrintToChatAll($"[{Colors.Red}]Warning: Server {(this.autoRestart.AsBool ? "restarting" : "shutting down")} down in [i]1 minute[/i][-]");
                     this.PrintToChatAll("Saving world state...");
                     this.ServerCommand("saveworld");
                 }
