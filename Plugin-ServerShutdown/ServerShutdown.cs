@@ -232,7 +232,7 @@ namespace SevenMod.Plugin.ServerShutdown
         {
             if (e.Percents[0] >= this.votePercent.AsFloat)
             {
-                this.PrintToChatAll(string.Format("Vote succeeded with {0:P2} of the vote.", e.Percents[0]), "Vote");
+                this.PrintToChatAll($"Vote succeeded with {e.Percents[0] :P2} of the vote.", "Vote");
                 this.PrintToChatAll($"{(this.autoRestart.AsBool ? "Restarting" : "Shutting down")} in 30 seconds...");
                 if (this.shutdownTimer != null)
                 {
@@ -247,7 +247,7 @@ namespace SevenMod.Plugin.ServerShutdown
             }
             else
             {
-                this.PrintToChatAll(string.Format("Vote failed with {0:P2} of the vote.", e.Percents[0]), "Vote");
+                this.PrintToChatAll($"Vote failed with {e.Percents[0] :P2} of the vote.", "Vote");
             }
         }
 
