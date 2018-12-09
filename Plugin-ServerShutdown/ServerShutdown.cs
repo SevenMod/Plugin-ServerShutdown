@@ -49,6 +49,11 @@ namespace SevenMod.Plugin.ServerShutdown
         /// </summary>
         private int countdown;
 
+        /// <summary>
+        /// A value indicating whether a shutdown is in progress.
+        /// </summary>
+        private bool shutdownInProgress;
+
         /// <inheritdoc/>
         public override PluginInfo Info => new PluginInfo
         {
@@ -71,6 +76,7 @@ namespace SevenMod.Plugin.ServerShutdown
             this.schedule.ConVar.ValueChanged += this.OnScheduleChanged;
 
             this.RegAdminCmd("voteshutdown", Admin.AdminFlags.Vote, "Starts a vote to shut down the server").Executed += this.OnVoteShutdownExecuted;
+            this.RegAdminCmd("cancelshutdown", Admin.AdminFlags.Changemap, "Cancels an impending shutdown").Executed += this.OnCancelShutdownExecuted;
         }
 
         /// <inheritdoc/>
@@ -159,6 +165,24 @@ namespace SevenMod.Plugin.ServerShutdown
         }
 
         /// <summary>
+        /// Called when the cancelshutdown admin command is executed.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">An <see cref="AdminCommandEventArgs"/> object containing the event data.</param>
+        private void OnCancelShutdownExecuted(object sender, AdminCommandEventArgs e)
+        {
+            if (this.shutdownInProgress)
+            {
+                this.ScheduleNext();
+                ChatHelper.ReplyToCommand(e.SenderInfo, "Server shutdown cancelled");
+            }
+            else
+            {
+                ChatHelper.ReplyToCommand(e.SenderInfo, "No shutdown in progress");
+            }
+        }
+
+        /// <summary>
         /// Called when a shutdown vote ends.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
@@ -174,6 +198,7 @@ namespace SevenMod.Plugin.ServerShutdown
                     this.shutdownTimer.Dispose();
                 }
 
+                this.shutdownInProgress = true;
                 this.countdown = 0;
                 this.shutdownTimer = new Timer(30000);
                 this.shutdownTimer.Elapsed += this.OnShutdownTimerElapsed;
@@ -193,6 +218,14 @@ namespace SevenMod.Plugin.ServerShutdown
             if (this.shutdownTimer != null)
             {
                 this.shutdownTimer.Dispose();
+                this.shutdownTimer = null;
+            }
+
+            this.shutdownInProgress = false;
+
+            if (this.shutdownSchedule.Count == 0)
+            {
+                return;
             }
 
             this.countdown = 5;
@@ -222,6 +255,7 @@ namespace SevenMod.Plugin.ServerShutdown
             this.shutdownTimer = null;
             if (this.countdown > 0)
             {
+                this.shutdownInProgress = true;
                 this.shutdownTimer = new Timer(60000);
                 this.shutdownTimer.Elapsed += this.OnShutdownTimerElapsed;
                 this.shutdownTimer.Enabled = true;
