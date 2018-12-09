@@ -79,6 +79,8 @@ namespace SevenMod.Plugin.ServerShutdown
 
             this.AutoExecConfig(true, "ServerShutdown");
 
+            this.RegisterCommands();
+
             this.autoRestart.ConVar.ValueChanged += this.OnAutoRestartChanged;
             this.schedule.ConVar.ValueChanged += this.OnScheduleChanged;
         }
@@ -87,6 +89,23 @@ namespace SevenMod.Plugin.ServerShutdown
         public void Dispose()
         {
             ((IDisposable)this.shutdownTimer).Dispose();
+        }
+
+        /// <summary>
+        /// Registers the admin commands.
+        /// </summary>
+        private void RegisterCommands()
+        {
+            if (this.autoRestart.AsBool)
+            {
+                this.RegAdminCmd("voterestart", Admin.AdminFlags.Vote, "Starts a vote to restart the server").Executed += this.OnVoteShutdownExecuted;
+                this.RegAdminCmd("cancelrestart", Admin.AdminFlags.Changemap, "Cancels an impending restart").Executed += this.OnCancelShutdownExecuted;
+            }
+            else
+            {
+                this.RegAdminCmd("voteshutdown", Admin.AdminFlags.Vote, "Starts a vote to shut down the server").Executed += this.OnVoteShutdownExecuted;
+                this.RegAdminCmd("cancelshutdown", Admin.AdminFlags.Changemap, "Cancels an impending shutdown").Executed += this.OnCancelShutdownExecuted;
+            }
         }
 
         /// <summary>
@@ -99,16 +118,7 @@ namespace SevenMod.Plugin.ServerShutdown
             this.UnregAdminCommand("voteshutdown");
             this.UnregAdminCommand("voterestart");
 
-            if (this.autoRestart.AsBool)
-            {
-                this.RegAdminCmd("voterestart", Admin.AdminFlags.Vote, "Starts a vote to restart the server").Executed += this.OnVoteShutdownExecuted;
-                this.RegAdminCmd("cancelrestart", Admin.AdminFlags.Changemap, "Cancels an impending restart").Executed += this.OnCancelShutdownExecuted;
-            }
-            else
-            {
-                this.RegAdminCmd("voteshutdown", Admin.AdminFlags.Vote, "Starts a vote to shut down the server").Executed += this.OnVoteShutdownExecuted;
-                this.RegAdminCmd("cancelshutdown", Admin.AdminFlags.Changemap, "Cancels an impending shutdown").Executed += this.OnCancelShutdownExecuted;
-            }
+            this.RegisterCommands();
         }
 
         /// <summary>
