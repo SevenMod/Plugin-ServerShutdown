@@ -200,8 +200,12 @@ namespace SevenMod.Plugin.ServerShutdown
             if (this.shutdownInProgress)
             {
                 this.ScheduleNext();
-                this.ReplyToCommand(e.SenderInfo, $"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} cancelled");
                 this.PrintToChatAll($"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} cancelled");
+
+                if (!this.ShouldReplyToChat(e.SenderInfo.RemoteClientInfo))
+                {
+                    this.ReplyToCommand(e.SenderInfo, $"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} cancelled");
+                }
             }
             else
             {
