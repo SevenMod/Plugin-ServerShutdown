@@ -20,6 +20,11 @@ namespace SevenMod.Plugin.ServerShutdown
     public sealed class ServerShutdown : PluginAbstract, IDisposable
     {
         /// <summary>
+        /// The value of the ServerShutdownAutoRestart <see cref="ConVar"/>.
+        /// </summary>
+        private ConVarValue autoRestart;
+
+        /// <summary>
         /// The value of the ServerShutdownSchedule <see cref="ConVar"/>.
         /// </summary>
         private ConVarValue schedule;
@@ -67,22 +72,43 @@ namespace SevenMod.Plugin.ServerShutdown
         /// <inheritdoc/>
         public override void OnLoadPlugin()
         {
+            this.autoRestart = this.CreateConVar("ServerShutdownAutoRestart", "True", "Enale if the server is set up to automatically restart after crashing.").Value;
             this.schedule = this.CreateConVar("ServerShutdownSchedule", string.Empty, "The automatic shutdown schedule in the format HH:MM. Separate multiple times with commas.").Value;
             this.enableVote = this.CreateConVar("ServerShutdownEnableVote", "True", "Enable the voteshutdown admin command.").Value;
             this.votePercent = this.CreateConVar("ServerShutdownVotePercent", "0.60", "The percentage of players that must vote yes for a successful shutdown vote.", true, 0, true, 1).Value;
 
             this.AutoExecConfig(true, "ServerShutdown");
 
+            this.autoRestart.ConVar.ValueChanged += this.OnAutoRestartChanged;
             this.schedule.ConVar.ValueChanged += this.OnScheduleChanged;
-
-            this.RegAdminCmd("voteshutdown", Admin.AdminFlags.Vote, "Starts a vote to shut down the server").Executed += this.OnVoteShutdownExecuted;
-            this.RegAdminCmd("cancelshutdown", Admin.AdminFlags.Changemap, "Cancels an impending shutdown").Executed += this.OnCancelShutdownExecuted;
         }
 
         /// <inheritdoc/>
         public void Dispose()
         {
             ((IDisposable)this.shutdownTimer).Dispose();
+        }
+
+        /// <summary>
+        /// Called when the value of the ServerShutdownAutoRestart <see cref="ConVar"/> is changed.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="ConVarChangedEventArgs"/> object containing the event data.</param>
+        private void OnAutoRestartChanged(object sender, ConVarChangedEventArgs e)
+        {
+            this.UnregAdminCommand("voteshutdown");
+            this.UnregAdminCommand("voterestart");
+
+            if (this.autoRestart.AsBool)
+            {
+                this.RegAdminCmd("voterestart", Admin.AdminFlags.Vote, "Starts a vote to restart the server").Executed += this.OnVoteShutdownExecuted;
+                this.RegAdminCmd("cancelrestart", Admin.AdminFlags.Changemap, "Cancels an impending restart").Executed += this.OnCancelShutdownExecuted;
+            }
+            else
+            {
+                this.RegAdminCmd("voteshutdown", Admin.AdminFlags.Vote, "Starts a vote to shut down the server").Executed += this.OnVoteShutdownExecuted;
+                this.RegAdminCmd("cancelshutdown", Admin.AdminFlags.Changemap, "Cancels an impending shutdown").Executed += this.OnCancelShutdownExecuted;
+            }
         }
 
         /// <summary>
@@ -158,7 +184,7 @@ namespace SevenMod.Plugin.ServerShutdown
                 return;
             }
 
-            if (VoteManager.StartVote("Shut down the server?"))
+            if (VoteManager.StartVote($"{(this.autoRestart.AsBool ? "Restart" : "Shut down")} the server?"))
             {
                 VoteManager.CurrentVote.Ended += this.OnShutdownVoteEnded;
             }
@@ -174,12 +200,12 @@ namespace SevenMod.Plugin.ServerShutdown
             if (this.shutdownInProgress)
             {
                 this.ScheduleNext();
-                ChatHelper.ReplyToCommand(e.SenderInfo, "Server shutdown cancelled");
-                ChatHelper.SendToAll("Server shutdown cancelled");
+                ChatHelper.ReplyToCommand(e.SenderInfo, $"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} cancelled");
+                ChatHelper.SendToAll($"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} cancelled");
             }
             else
             {
-                ChatHelper.ReplyToCommand(e.SenderInfo, "No shutdown in progress");
+                ChatHelper.ReplyToCommand(e.SenderInfo, $"No {(this.autoRestart.AsBool ? "restart" : "shutdown")} in progress");
             }
         }
 
@@ -193,7 +219,7 @@ namespace SevenMod.Plugin.ServerShutdown
             if (e.Percents[0] >= this.votePercent.AsFloat)
             {
                 ChatHelper.SendToAll(string.Format("Vote succeeded with {0:P2} of the vote.", e.Percents[0]), "Vote");
-                ChatHelper.SendToAll("Shutting down in 30 seconds...");
+                ChatHelper.SendToAll($"{(this.autoRestart.AsBool ? "Restarting" : "Shutting down")} in 30 seconds...");
                 if (this.shutdownTimer != null)
                 {
                     this.shutdownTimer.Dispose();
@@ -263,11 +289,11 @@ namespace SevenMod.Plugin.ServerShutdown
 
                 if (this.countdown > 1)
                 {
-                    ChatHelper.SendToAll($"[FFFF00]Warning: Server shutting down in [i]{this.countdown} minutes[/i][-]");
+                    ChatHelper.SendToAll($"[FFFF00]Warning: Server {(this.autoRestart.AsBool ? "restarting" : "shutting down")} in [i]{this.countdown} minutes[/i][-]");
                 }
                 else
                 {
-                    ChatHelper.SendToAll("[FF0000]Warning: Server shutting down in [i]1 minute[/i][-]");
+                    ChatHelper.SendToAll($"[FF0000]Warning: Server {(this.autoRestart.AsBool ? "restarting" : "shutting down")} down in [i]1 minute[/i][-]");
                     ChatHelper.SendToAll("Saving world state...");
                     SdtdConsole.Instance.ExecuteSync("saveworld", null);
                 }
