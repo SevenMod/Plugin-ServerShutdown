@@ -175,6 +175,7 @@ namespace SevenMod.Plugin.ServerShutdown
             {
                 this.ScheduleNext();
                 ChatHelper.ReplyToCommand(e.SenderInfo, "Server shutdown cancelled");
+                ChatHelper.SendToAll("Server shutdown cancelled");
             }
             else
             {
