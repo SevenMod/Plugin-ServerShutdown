@@ -212,14 +212,14 @@ namespace SevenMod.Plugin.ServerShutdown
                 this.ScheduleNext();
                 this.PrintToChatAll($"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} cancelled");
 
-                if (!this.ShouldReplyToChat(e.SenderInfo.RemoteClientInfo))
+                if (!this.ShouldReplyToChat(e.Client))
                 {
-                    this.ReplyToCommand(e.SenderInfo, $"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} cancelled");
+                    this.ReplyToCommand(e.Client, $"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} cancelled");
                 }
             }
             else
             {
-                this.ReplyToCommand(e.SenderInfo, $"No {(this.autoRestart.AsBool ? "restart" : "shutdown")} in progress");
+                this.ReplyToCommand(e.Client, $"No {(this.autoRestart.AsBool ? "restart" : "shutdown")} in progress");
             }
         }
 
