@@ -233,6 +233,7 @@ namespace SevenMod.Plugin.ServerShutdown
                 this.countdown = Math.Max(1, Math.Min(20, countdown));
             }
 
+            this.ReplyToCommand(e.Client, "Server restart countdown started");
             this.CountDown();
         }
 
