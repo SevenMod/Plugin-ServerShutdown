@@ -95,6 +95,7 @@ namespace SevenMod.Plugin.ServerShutdown
 
             this.autoRestart.ConVar.ValueChanged += this.OnAutoRestartChanged;
             this.schedule.ConVar.ValueChanged += this.OnScheduleChanged;
+            this.countdownTime.ConVar.ValueChanged += this.OnCountdownTimeChanged;
         }
 
         /// <inheritdoc/>
@@ -193,6 +194,16 @@ namespace SevenMod.Plugin.ServerShutdown
 
                 this.ScheduleNext();
             }
+        }
+
+        /// <summary>
+        /// Called when the value of the ServerShutdownCountdownTime <see cref="ConVar"/> is changed.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="ConVarChangedEventArgs"/> object containing the event data.</param>
+        private void OnCountdownTimeChanged(object sender, ConVarChangedEventArgs e)
+        {
+            this.ScheduleNext();
         }
 
         /// <summary>
