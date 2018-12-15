@@ -129,8 +129,11 @@ namespace SevenMod.Plugin.ServerShutdown
         /// <param name="e">A <see cref="ConVarChangedEventArgs"/> object containing the event data.</param>
         private void OnAutoRestartChanged(object sender, ConVarChangedEventArgs e)
         {
+            this.UnregAdminCommand("restart");
             this.UnregAdminCommand("voteshutdown");
             this.UnregAdminCommand("voterestart");
+            this.UnregAdminCommand("cancelshutdown");
+            this.UnregAdminCommand("cancelrestart");
 
             this.RegisterCommands();
         }
