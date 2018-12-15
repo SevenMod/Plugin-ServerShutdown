@@ -30,6 +30,11 @@ namespace SevenMod.Plugin.ServerShutdown
         private ConVarValue schedule;
 
         /// <summary>
+        /// The value of the ServerShutdownEnableRestartCommand <see cref="ConVar"/>.
+        /// </summary>
+        private ConVarValue enableRestartCommand;
+
+        /// <summary>
         /// The value of the ServerShutdownEnableVote <see cref="ConVar"/>.
         /// </summary>
         private ConVarValue enableVote;
@@ -74,6 +79,7 @@ namespace SevenMod.Plugin.ServerShutdown
         {
             this.autoRestart = this.CreateConVar("ServerShutdownAutoRestart", "True", "Enale if the server is set up to automatically restart after crashing.").Value;
             this.schedule = this.CreateConVar("ServerShutdownSchedule", string.Empty, "The automatic shutdown schedule in the format HH:MM. Separate multiple times with commas.").Value;
+            this.enableRestartCommand = this.CreateConVar("ServerShutdownEnableRestartCommand", "True", "Enable the restart admin command.").Value;
             this.enableVote = this.CreateConVar("ServerShutdownEnableVote", "True", "Enable the voteshutdown admin command.").Value;
             this.votePercent = this.CreateConVar("ServerShutdownVotePercent", "0.60", "The percentage of players that must vote yes for a successful shutdown vote.", true, 0, true, 1).Value;
 
@@ -98,6 +104,7 @@ namespace SevenMod.Plugin.ServerShutdown
         {
             if (this.autoRestart.AsBool)
             {
+                this.RegAdminCmd("restart", Admin.AdminFlags.Vote, "Starts a server restart").Executed += this.OnRestartCommandExecuted;
                 this.RegAdminCmd("voterestart", Admin.AdminFlags.Vote, "Starts a vote to restart the server").Executed += this.OnVoteShutdownExecuted;
                 this.RegAdminCmd("cancelrestart", Admin.AdminFlags.Changemap, "Cancels an impending restart").Executed += this.OnCancelShutdownExecuted;
             }
@@ -183,6 +190,33 @@ namespace SevenMod.Plugin.ServerShutdown
         }
 
         /// <summary>
+        /// Called when the restart admin command is executed.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">An <see cref="AdminCommandEventArgs"/> object containing the event data.</param>
+        private void OnRestartCommandExecuted(object sender, AdminCommandEventArgs e)
+        {
+            if (!this.enableRestartCommand.AsBool)
+            {
+                return;
+            }
+
+            if (this.shutdownInProgress)
+            {
+                this.ReplyToCommand(e.Client, "Server restart already in progress");
+                return;
+            }
+
+            this.countdown = 5;
+            if (e.Arguments.Count > 0 && int.TryParse(e.Arguments[0], out this.countdown))
+            {
+                this.countdown = Math.Max(1, Math.Min(20, this.countdown));
+            }
+
+            this.CountDown();
+        }
+
+        /// <summary>
         /// Called when the voteshutdown admin command is executed.
         /// </summary>
         /// <param name="sender">The source of the event.</param>
@@ -191,6 +225,12 @@ namespace SevenMod.Plugin.ServerShutdown
         {
             if (!this.enableVote.AsBool)
             {
+                return;
+            }
+
+            if (this.shutdownInProgress)
+            {
+                this.ReplyToCommand(e.Client, $"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} already in progress");
                 return;
             }
 
@@ -230,6 +270,12 @@ namespace SevenMod.Plugin.ServerShutdown
         /// <param name="e">A <see cref="VoteEndedEventArgs"/> object containing the event data.</param>
         private void OnShutdownVoteEnded(object sender, VoteEndedEventArgs e)
         {
+            if (this.shutdownInProgress)
+            {
+                this.PrintToChatAll($"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} already in progress", "Vote");
+                return;
+            }
+
             if (e.Percents[0] >= this.votePercent.AsFloat)
             {
                 this.PrintToChatAll($"Vote succeeded with {e.Percents[0] :P2} of the vote.", "Vote");
@@ -292,8 +338,15 @@ namespace SevenMod.Plugin.ServerShutdown
         /// <param name="e">An <see cref="ElapsedEventArgs"/> object containing the event data.</param>
         private void OnShutdownTimerElapsed(object sender, ElapsedEventArgs e)
         {
-            this.shutdownTimer.Dispose();
-            this.shutdownTimer = null;
+            this.CountDown();
+        }
+
+        /// <summary>
+        /// Updates the countdown.
+        /// </summary>
+        private void CountDown()
+        {
+            this.shutdownTimer?.Dispose();
             if (this.countdown > 0)
             {
                 this.shutdownInProgress = true;
