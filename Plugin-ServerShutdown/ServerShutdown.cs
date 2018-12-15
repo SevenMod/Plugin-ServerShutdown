@@ -30,6 +30,11 @@ namespace SevenMod.Plugin.ServerShutdown
         private ConVarValue schedule;
 
         /// <summary>
+        /// The value of the ServerShutdownCountdownTime <see cref="ConVar"/>.
+        /// </summary>
+        private ConVarValue countdownTime;
+
+        /// <summary>
         /// The value of the ServerShutdownEnableRestartCommand <see cref="ConVar"/>.
         /// </summary>
         private ConVarValue enableRestartCommand;
@@ -79,6 +84,7 @@ namespace SevenMod.Plugin.ServerShutdown
         {
             this.autoRestart = this.CreateConVar("ServerShutdownAutoRestart", "True", "Enale if the server is set up to automatically restart after crashing.").Value;
             this.schedule = this.CreateConVar("ServerShutdownSchedule", string.Empty, "The automatic shutdown schedule in the format HH:MM. Separate multiple times with commas.").Value;
+            this.countdownTime = this.CreateConVar("ServerShutdownCountdownTime", "5", "The countdown time in minutes for scheduled shutdowns.", true, 1, true, 20).Value;
             this.enableRestartCommand = this.CreateConVar("ServerShutdownEnableRestartCommand", "True", "Enable the restart admin command.").Value;
             this.enableVote = this.CreateConVar("ServerShutdownEnableVote", "True", "Enable the voteshutdown admin command.").Value;
             this.votePercent = this.CreateConVar("ServerShutdownVotePercent", "0.60", "The percentage of players that must vote yes for a successful shutdown vote.", true, 0, true, 1).Value;
@@ -207,10 +213,10 @@ namespace SevenMod.Plugin.ServerShutdown
                 return;
             }
 
-            this.countdown = 5;
-            if (e.Arguments.Count > 0 && int.TryParse(e.Arguments[0], out this.countdown))
+            this.countdown = this.countdownTime.AsInt;
+            if (e.Arguments.Count > 0 && int.TryParse(e.Arguments[0], out var countdown))
             {
-                this.countdown = Math.Max(1, Math.Min(20, this.countdown));
+                this.countdown = Math.Max(1, Math.Min(20, countdown));
             }
 
             this.CountDown();
@@ -315,12 +321,12 @@ namespace SevenMod.Plugin.ServerShutdown
                 return;
             }
 
-            this.countdown = 5;
+            this.countdown = this.countdownTime.AsInt;
 
-            var time = this.shutdownSchedule.Find((int t) => (t - 5) >= DateTime.Now.TimeOfDay.TotalMinutes);
+            var time = this.shutdownSchedule.Find((int t) => (t - this.countdown) >= DateTime.Now.TimeOfDay.TotalMinutes);
             time = time == 0 ? this.shutdownSchedule[0] : time;
 
-            var dt = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, time / 60, time % 60, 0).AddMinutes(-5);
+            var dt = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, time / 60, time % 60, 0).AddMinutes(-this.countdown);
             if (dt < DateTime.Now)
             {
                 dt = dt.AddDays(1);
