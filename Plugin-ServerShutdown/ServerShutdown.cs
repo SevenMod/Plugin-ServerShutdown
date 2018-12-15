@@ -112,13 +112,13 @@ namespace SevenMod.Plugin.ServerShutdown
             if (this.autoRestart.AsBool)
             {
                 this.RegAdminCmd("restart", Admin.AdminFlags.Vote, "Starts a server restart").Executed += this.OnRestartCommandExecuted;
-                this.RegAdminCmd("voterestart", Admin.AdminFlags.Vote, "Starts a vote to restart the server").Executed += this.OnVoteShutdownExecuted;
-                this.RegAdminCmd("cancelrestart", Admin.AdminFlags.Changemap, "Cancels an impending restart").Executed += this.OnCancelShutdownExecuted;
+                this.RegAdminCmd("voterestart", Admin.AdminFlags.Vote, "Starts a vote to restart the server").Executed += this.OnVoteshutdownCommandExecuted;
+                this.RegAdminCmd("cancelrestart", Admin.AdminFlags.Changemap, "Cancels an impending restart").Executed += this.OnCancelshutdownCommandExecuted;
             }
             else
             {
-                this.RegAdminCmd("voteshutdown", Admin.AdminFlags.Vote, "Starts a vote to shut down the server").Executed += this.OnVoteShutdownExecuted;
-                this.RegAdminCmd("cancelshutdown", Admin.AdminFlags.Changemap, "Cancels an impending shutdown").Executed += this.OnCancelShutdownExecuted;
+                this.RegAdminCmd("voteshutdown", Admin.AdminFlags.Vote, "Starts a vote to shut down the server").Executed += this.OnVoteshutdownCommandExecuted;
+                this.RegAdminCmd("cancelshutdown", Admin.AdminFlags.Changemap, "Cancels an impending shutdown").Executed += this.OnCancelshutdownCommandExecuted;
             }
         }
 
@@ -242,7 +242,7 @@ namespace SevenMod.Plugin.ServerShutdown
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">An <see cref="AdminCommandEventArgs"/> object containing the event data.</param>
-        private void OnVoteShutdownExecuted(object sender, AdminCommandEventArgs e)
+        private void OnVoteshutdownCommandExecuted(object sender, AdminCommandEventArgs e)
         {
             if (!this.enableVote.AsBool)
             {
@@ -266,7 +266,7 @@ namespace SevenMod.Plugin.ServerShutdown
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">An <see cref="AdminCommandEventArgs"/> object containing the event data.</param>
-        private void OnCancelShutdownExecuted(object sender, AdminCommandEventArgs e)
+        private void OnCancelshutdownCommandExecuted(object sender, AdminCommandEventArgs e)
         {
             if (this.shutdownInProgress)
             {
