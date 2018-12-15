@@ -8,6 +8,7 @@ namespace SevenMod.Plugin.ServerShutdown
     using System;
     using System.Collections.Generic;
     using System.Timers;
+    using SevenMod.Admin;
     using SevenMod.Chat;
     using SevenMod.Console;
     using SevenMod.ConVar;
@@ -111,14 +112,14 @@ namespace SevenMod.Plugin.ServerShutdown
         {
             if (this.autoRestart.AsBool)
             {
-                this.RegAdminCmd("restart", Admin.AdminFlags.Vote, "Starts a server restart").Executed += this.OnRestartCommandExecuted;
-                this.RegAdminCmd("voterestart", Admin.AdminFlags.Vote, "Starts a vote to restart the server").Executed += this.OnVoteshutdownCommandExecuted;
-                this.RegAdminCmd("cancelrestart", Admin.AdminFlags.Changemap, "Cancels an impending restart").Executed += this.OnCancelshutdownCommandExecuted;
+                this.RegAdminCmd("restart", AdminFlags.RCON, "Starts a server restart").Executed += this.OnRestartCommandExecuted;
+                this.RegAdminCmd("voterestart", AdminFlags.Vote, "Starts a vote to restart the server").Executed += this.OnVoteshutdownCommandExecuted;
+                this.RegAdminCmd("cancelrestart", AdminFlags.Changemap, "Cancels an impending restart").Executed += this.OnCancelshutdownCommandExecuted;
             }
             else
             {
-                this.RegAdminCmd("voteshutdown", Admin.AdminFlags.Vote, "Starts a vote to shut down the server").Executed += this.OnVoteshutdownCommandExecuted;
-                this.RegAdminCmd("cancelshutdown", Admin.AdminFlags.Changemap, "Cancels an impending shutdown").Executed += this.OnCancelshutdownCommandExecuted;
+                this.RegAdminCmd("voteshutdown", AdminFlags.Vote, "Starts a vote to shut down the server").Executed += this.OnVoteshutdownCommandExecuted;
+                this.RegAdminCmd("cancelshutdown", AdminFlags.Changemap, "Cancels an impending shutdown").Executed += this.OnCancelshutdownCommandExecuted;
             }
         }
 
