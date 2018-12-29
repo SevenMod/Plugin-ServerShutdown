@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Phrases>
+  <Phrase Name="Restart Description">
+    <en>Starts a server restart</en>
+  </Phrase>
+  <Phrase Name="Voterestart Description">
+    <en>Starts a vote to restart the server</en>
+  </Phrase>
+  <Phrase Name="Cancelrestart Description">
+    <en>Cancels an impending restart</en>
+  </Phrase>
+  <Phrase Name="Voteshutdown Description">
+    <en>Starts a vote to shut down the server</en>
+  </Phrase>
+  <Phrase Name="Cancelshutdown Description">
+    <en>Cancels an impending shutdown</en>
+  </Phrase>
+  <Phrase Name="Restart In Progress">
+    <en>Server restart already in progress</en>
+  </Phrase>
+  <Phrase Name="Shutdown In Progress">
+    <en>Server shutdown already in progress</en>
+  </Phrase>
+  <Phrase Name="Restart Countdown Started">
+    <en>Server restart countdown started</en>
+  </Phrase>
+  <Phrase Name="Restart Cancelled">
+    <en>Server restart cancelled</en>
+  </Phrase>
+  <Phrase Name="Shutdown Cancelled">
+    <en>Server shutdown cancelled</en>
+  </Phrase>
+  <Phrase Name="No restart in progress">
+    <en>No restart in progress</en>
+  </Phrase>
+  <Phrase Name="No shutdown in progress">
+    <en>No shutdown in progress</en>
+  </Phrase>
+  <Phrase Name="Shutdown Cancelled">
+    <en>Server shutdown cancelled</en>
+  </Phrase>
+  <Phrase Name="Restart Vote">
+    <en>Restart the server?</en>
+  </Phrase>
+  <Phrase Name="Shutdown Vote">
+    <en>Shut down the server?</en>
+  </Phrase>
+  <Phrase Name="Restarting">
+    <en>Restarting in 30 seconds...</en>
+  </Phrase>
+  <Phrase Name="Shutting Down">
+    <en>Shutting down in 30 seconds...</en>
+  </Phrase>
+  <Phrase Name="Restart Warning">
+    <Format>{1:d}</Format>
+    <en>[FFFF00]Warning: Server restarting in [i]{1} minutes[/i][-]</en>
+  </Phrase>
+  <Phrase Name="Restart Warning Final">
+    <en>[FF0000]Warning: Server restarting in [i]1 minute[/i][-]</en>
+  </Phrase>
+  <Phrase Name="Shutdown Warning">
+    <Format>{1:d}</Format>
+    <en>[FFFF00]Warning: Server shutting down in [i]{1} minutes[/i][-]</en>
+  </Phrase>
+  <Phrase Name="Shutdown Warning Final">
+    <en>[FF0000]Warning: Server shutting down in [i]1 minute[/i][-]</en>
+  </Phrase>
+  <Phrase Name="Saving world state">
+    <en>Saving world state...</en>
+  </Phrase>
+</Phrases>

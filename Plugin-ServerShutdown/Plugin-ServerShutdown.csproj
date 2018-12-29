@@ -51,6 +51,10 @@
   <ItemGroup>
     <None Include="packages.config" />
     <AdditionalFiles Include="stylecop.json" />
+    <Content Include="Translations\ServerShutdown.Plugin.xml">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.2\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
@@ -65,7 +69,9 @@
     <PostBuildEvent>
 rmdir "$(ProjectDir)..\bin" /s /q
 mkdir "$(ProjectDir)..\bin\Plugins"
+mkdir "$(ProjectDir)..\bin\Translations"
 copy "$(ProjectDir)$(OutDir)Plugin.ServerShutdown.dll" "$(ProjectDir)..\bin\Plugins\ServerShutdown.dll"
+xcopy "$(ProjectDir)$(OutDir)Translations" "$(ProjectDir)..\bin\Translations" /e /y /i /c
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

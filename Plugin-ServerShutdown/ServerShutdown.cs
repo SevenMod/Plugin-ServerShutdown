@@ -9,7 +9,6 @@ namespace SevenMod.Plugin.ServerShutdown
     using System.Collections.Generic;
     using System.Timers;
     using SevenMod.Admin;
-    using SevenMod.Chat;
     using SevenMod.Console;
     using SevenMod.ConVar;
     using SevenMod.Core;
@@ -83,6 +82,8 @@ namespace SevenMod.Plugin.ServerShutdown
         /// <inheritdoc/>
         public override void OnLoadPlugin()
         {
+            this.LoadTranslations("ServerShutdown.Plugin");
+
             this.autoRestart = this.CreateConVar("ServerShutdownAutoRestart", "True", "Enale if the server is set up to automatically restart after crashing.").Value;
             this.schedule = this.CreateConVar("ServerShutdownSchedule", string.Empty, "The automatic shutdown schedule in the format HH:MM. Separate multiple times with commas.").Value;
             this.countdownTime = this.CreateConVar("ServerShutdownCountdownTime", "5", "The countdown time in minutes for scheduled shutdowns.", true, 1, true, 20).Value;
@@ -112,14 +113,14 @@ namespace SevenMod.Plugin.ServerShutdown
         {
             if (this.autoRestart.AsBool)
             {
-                this.RegAdminCmd("restart", AdminFlags.RCON, "Starts a server restart").Executed += this.OnRestartCommandExecuted;
-                this.RegAdminCmd("voterestart", AdminFlags.Vote, "Starts a vote to restart the server").Executed += this.OnVoteshutdownCommandExecuted;
-                this.RegAdminCmd("cancelrestart", AdminFlags.Changemap, "Cancels an impending restart").Executed += this.OnCancelshutdownCommandExecuted;
+                this.RegAdminCmd("restart", AdminFlags.RCON, "Restart Description").Executed += this.OnRestartCommandExecuted;
+                this.RegAdminCmd("voterestart", AdminFlags.Vote, "Voterestart Description").Executed += this.OnVoteshutdownCommandExecuted;
+                this.RegAdminCmd("cancelrestart", AdminFlags.Changemap, "Cancelrestart Description").Executed += this.OnCancelshutdownCommandExecuted;
             }
             else
             {
-                this.RegAdminCmd("voteshutdown", AdminFlags.Vote, "Starts a vote to shut down the server").Executed += this.OnVoteshutdownCommandExecuted;
-                this.RegAdminCmd("cancelshutdown", AdminFlags.Changemap, "Cancels an impending shutdown").Executed += this.OnCancelshutdownCommandExecuted;
+                this.RegAdminCmd("voteshutdown", AdminFlags.Vote, "Voteshutdown Description").Executed += this.OnVoteshutdownCommandExecuted;
+                this.RegAdminCmd("cancelshutdown", AdminFlags.Changemap, "Cancelshutdown Description").Executed += this.OnCancelshutdownCommandExecuted;
             }
         }
 
@@ -224,7 +225,7 @@ namespace SevenMod.Plugin.ServerShutdown
 
             if (this.shutdownInProgress)
             {
-                this.ReplyToCommand(e.Client, "Server restart already in progress");
+                this.ReplyToCommand(e.Client, "Restart In Progress");
                 return;
             }
 
@@ -234,7 +235,7 @@ namespace SevenMod.Plugin.ServerShutdown
                 this.countdown = Math.Max(1, Math.Min(20, countdown));
             }
 
-            this.ReplyToCommand(e.Client, "Server restart countdown started");
+            this.ReplyToCommand(e.Client, "Restart Countdown Started");
             this.CountDown();
         }
 
@@ -252,11 +253,11 @@ namespace SevenMod.Plugin.ServerShutdown
 
             if (this.shutdownInProgress)
             {
-                this.ReplyToCommand(e.Client, $"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} already in progress");
+                this.ReplyToCommand(e.Client, $"{(this.autoRestart.AsBool ? "Restart" : "Shutdown")} In Progress");
                 return;
             }
 
-            if (VoteManager.StartVote($"{(this.autoRestart.AsBool ? "Restart" : "Shut down")} the server?"))
+            if (VoteManager.CreateVote($"{(this.autoRestart.AsBool ? "Restart" : "Shutdown")} Vote").Start())
             {
                 VoteManager.CurrentVote.Ended += this.OnShutdownVoteEnded;
             }
@@ -272,11 +273,11 @@ namespace SevenMod.Plugin.ServerShutdown
             if (this.shutdownInProgress)
             {
                 this.ScheduleNext();
-                this.PrintToChatAll($"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} cancelled");
+                this.PrintToChatAll($"{(this.autoRestart.AsBool ? "Restart" : "Shutdown")} Cancelled");
 
                 if (!this.ShouldReplyToChat(e.Client))
                 {
-                    this.ReplyToCommand(e.Client, $"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} cancelled");
+                    this.ReplyToCommand(e.Client, $"{(this.autoRestart.AsBool ? "Restart" : "Shutdown")} Cancelled");
                 }
             }
             else
@@ -294,14 +295,14 @@ namespace SevenMod.Plugin.ServerShutdown
         {
             if (this.shutdownInProgress)
             {
-                this.PrintToChatAll($"Server {(this.autoRestart.AsBool ? "restart" : "shutdown")} already in progress", "Vote");
+                this.PrintToChatAll($"{(this.autoRestart.AsBool ? "Restart" : "Shutdown")} In Progress");
                 return;
             }
 
             if (e.Percents[0] >= this.votePercent.AsFloat)
             {
-                this.PrintToChatAll($"Vote succeeded with {e.Percents[0] :P2} of the vote.", "Vote");
-                this.PrintToChatAll($"{(this.autoRestart.AsBool ? "Restarting" : "Shutting down")} in 30 seconds...");
+                this.PrintToChatAll("Vote Succeeded", e.Percents[0]);
+                this.PrintToChatAll(this.autoRestart.AsBool ? "Restarting" : "Shutting Down");
                 if (this.shutdownTimer != null)
                 {
                     this.shutdownTimer.Dispose();
@@ -315,7 +316,7 @@ namespace SevenMod.Plugin.ServerShutdown
             }
             else
             {
-                this.PrintToChatAll($"Vote failed with {e.Percents[0] :P2} of the vote.", "Vote");
+                this.PrintToChatAll("Vote Failed", e.Percents[0]);
             }
         }
 
@@ -378,12 +379,12 @@ namespace SevenMod.Plugin.ServerShutdown
 
                 if (this.countdown > 1)
                 {
-                    this.PrintToChatAll($"[{Colors.Yellow}]Warning: Server {(this.autoRestart.AsBool ? "restarting" : "shutting down")} in [i]{this.countdown} minutes[/i][-]");
+                    this.PrintToChatAll(this.autoRestart.AsBool ? "Restart Warning" : "Shutdown Warning", this.countdown);
                 }
                 else
                 {
-                    this.PrintToChatAll($"[{Colors.Red}]Warning: Server {(this.autoRestart.AsBool ? "restarting" : "shutting down")} down in [i]1 minute[/i][-]");
-                    this.PrintToChatAll("Saving world state...");
+                    this.PrintToChatAll(this.autoRestart.AsBool ? "Restart Warning Final" : "Shutdown Warning Final");
+                    this.PrintToChatAll("Saving world state");
                     this.ServerCommand("saveworld");
                 }
 
