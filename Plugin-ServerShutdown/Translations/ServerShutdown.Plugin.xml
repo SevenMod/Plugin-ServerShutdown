@@ -36,9 +36,6 @@
   <Phrase Name="No shutdown in progress">
     <en>No shutdown in progress</en>
   </Phrase>
-  <Phrase Name="Shutdown Cancelled">
-    <en>Server shutdown cancelled</en>
-  </Phrase>
   <Phrase Name="Restart Vote">
     <en>Restart the server?</en>
   </Phrase>
