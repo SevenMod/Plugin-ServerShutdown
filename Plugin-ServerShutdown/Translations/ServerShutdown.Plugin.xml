@@ -24,11 +24,23 @@
   <Phrase Name="Restart Countdown Started">
     <en>Server restart countdown started</en>
   </Phrase>
-  <Phrase Name="Restart Cancelled">
-    <en>Server restart cancelled</en>
+  <Phrase Name="Cancelled Restart">
+    <en>Cancelled server restart</en>
   </Phrase>
-  <Phrase Name="Shutdown Cancelled">
-    <en>Server shutdown cancelled</en>
+  <Phrase Name="Cancelled Shutdown">
+    <en>Cancelled server shutdown</en>
+  </Phrase>
+  <Phrase Name="Initiated Vote Restart">
+    <en>Initiated a vote to restart the server.</en>
+  </Phrase>
+  <Phrase Name="Initiated Vote Shutdown">
+    <en>Initiated a vote to shut down the server.</en>
+  </Phrase>
+  <Phrase Name="Initiated Restart">
+    <en>Initiated a server restart.</en>
+  </Phrase>
+  <Phrase Name="Initiated Shutdown">
+    <en>Initiated a server shut down.</en>
   </Phrase>
   <Phrase Name="No restart in progress">
     <en>No restart in progress</en>

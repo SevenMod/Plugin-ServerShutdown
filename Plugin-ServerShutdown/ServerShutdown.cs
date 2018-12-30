@@ -236,6 +236,7 @@ namespace SevenMod.Plugin.ServerShutdown
             }
 
             this.ReplyToCommand(e.Client, "Restart Countdown Started");
+            this.ShowActivity(e.Client, $"Initiated {(this.autoRestart.AsBool ? "Restart" : "Shutdown")}");
             this.CountDown();
         }
 
@@ -259,6 +260,7 @@ namespace SevenMod.Plugin.ServerShutdown
 
             if (VoteManager.CreateVote($"{(this.autoRestart.AsBool ? "Restart" : "Shutdown")} Vote").Start())
             {
+                this.ShowActivity(e.Client, $"Initiated Vote {(this.autoRestart.AsBool ? "Restart" : "Shutdown")}");
                 VoteManager.CurrentVote.Ended += this.OnShutdownVoteEnded;
             }
         }
@@ -273,11 +275,11 @@ namespace SevenMod.Plugin.ServerShutdown
             if (this.shutdownInProgress)
             {
                 this.ScheduleNext();
-                this.PrintToChatAll($"{(this.autoRestart.AsBool ? "Restart" : "Shutdown")} Cancelled");
+                this.ShowActivity(e.Client, $"Cancelled {(this.autoRestart.AsBool ? "Restart" : "Shutdown")}");
 
                 if (!this.ShouldReplyToChat(e.Client))
                 {
-                    this.ReplyToCommand(e.Client, $"{(this.autoRestart.AsBool ? "Restart" : "Shutdown")} Cancelled");
+                    this.ReplyToCommand(e.Client, $"Cancelled{(this.autoRestart.AsBool ? "Restart" : "Shutdown")}");
                 }
             }
             else
