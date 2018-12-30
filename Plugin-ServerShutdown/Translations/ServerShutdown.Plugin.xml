@@ -50,17 +50,17 @@
   </Phrase>
   <Phrase Name="Restart Warning">
     <Format>{1:d}</Format>
-    <en>[FFFF00]Warning: Server restarting in [i]{1} minutes[/i][-]</en>
+    <en>[YELLOW]Warning: Server restarting in [i]{1} minutes[/i][-]</en>
   </Phrase>
   <Phrase Name="Restart Warning Final">
-    <en>[FF0000]Warning: Server restarting in [i]1 minute[/i][-]</en>
+    <en>[RED]Warning: Server restarting in [i]1 minute[/i][-]</en>
   </Phrase>
   <Phrase Name="Shutdown Warning">
     <Format>{1:d}</Format>
-    <en>[FFFF00]Warning: Server shutting down in [i]{1} minutes[/i][-]</en>
+    <en>[YELLOW]Warning: Server shutting down in [i]{1} minutes[/i][-]</en>
   </Phrase>
   <Phrase Name="Shutdown Warning Final">
-    <en>[FF0000]Warning: Server shutting down in [i]1 minute[/i][-]</en>
+    <en>[RED]Warning: Server shutting down in [i]1 minute[/i][-]</en>
   </Phrase>
   <Phrase Name="Saving world state">
     <en>Saving world state...</en>
