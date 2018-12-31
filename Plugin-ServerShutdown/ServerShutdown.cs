@@ -236,7 +236,7 @@ namespace SevenMod.Plugin.ServerShutdown
             }
 
             this.ReplyToCommand(e.Client, "Restart Countdown Started");
-            this.ShowActivity(e.Client, $"Initiated {(this.autoRestart.AsBool ? "Restart" : "Shutdown")}");
+            this.ShowActivity(e.Client, "Initiated Restart");
             this.CountDown();
         }
 
