@@ -281,7 +281,7 @@ namespace SevenMod.Plugin.ServerShutdown
 
                 if (!this.ShouldReplyToChat(e.Client))
                 {
-                    this.ReplyToCommand(e.Client, $"Cancelled{(this.autoRestart.AsBool ? "Restart" : "Shutdown")}");
+                    this.ReplyToCommand(e.Client, $"Cancelled {(this.autoRestart.AsBool ? "Restart" : "Shutdown")}");
                 }
 
                 this.LogAction(e.Client, null, "\"{0:L}\" cancelled the server shutdown", e.Client);
