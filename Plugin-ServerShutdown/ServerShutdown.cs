@@ -237,6 +237,7 @@ namespace SevenMod.Plugin.ServerShutdown
 
             this.ReplyToCommand(e.Client, "Restart Countdown Started");
             this.ShowActivity(e.Client, "Initiated Restart");
+            this.LogAction(e.Client, null, "\"{1:L}\" initiated a server shutdown (countdown \"{2:d}\")", e.Client, this.countdown);
             this.CountDown();
         }
 
@@ -261,6 +262,7 @@ namespace SevenMod.Plugin.ServerShutdown
             if (VoteManager.CreateVote($"{(this.autoRestart.AsBool ? "Restart" : "Shutdown")} Vote").Start())
             {
                 this.ShowActivity(e.Client, $"Initiated Vote {(this.autoRestart.AsBool ? "Restart" : "Shutdown")}");
+                this.LogAction(e.Client, null, "\"{1:L}\" initiated a server shutdown vote", e.Client);
                 VoteManager.CurrentVote.Ended += this.OnShutdownVoteEnded;
             }
         }
@@ -281,6 +283,8 @@ namespace SevenMod.Plugin.ServerShutdown
                 {
                     this.ReplyToCommand(e.Client, $"Cancelled{(this.autoRestart.AsBool ? "Restart" : "Shutdown")}");
                 }
+
+                this.LogAction(e.Client, null, "\"{1:L}\" cancelled the server shutdown", e.Client);
             }
             else
             {
@@ -303,6 +307,7 @@ namespace SevenMod.Plugin.ServerShutdown
 
             if (e.Percents[0] >= this.votePercent.AsFloat)
             {
+                this.LogAction(null, null, "Server shutdown vote succeeded");
                 this.PrintToChatAll("Vote Succeeded", e.Percents[0]);
                 this.PrintToChatAll(this.autoRestart.AsBool ? "Restarting" : "Shutting Down");
                 if (this.shutdownTimer != null)
@@ -318,6 +323,7 @@ namespace SevenMod.Plugin.ServerShutdown
             }
             else
             {
+                this.LogAction(null, null, "Server shutdown vote failed");
                 this.PrintToChatAll("Vote Failed", e.Percents[0]);
             }
         }
@@ -394,6 +400,7 @@ namespace SevenMod.Plugin.ServerShutdown
             }
             else
             {
+                this.LogAction(null, null, "Shutting down the server");
                 this.ServerCommand("shutdown");
                 this.ScheduleNext();
             }
