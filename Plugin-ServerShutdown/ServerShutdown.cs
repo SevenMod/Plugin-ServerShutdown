@@ -84,7 +84,7 @@ namespace SevenMod.Plugin.ServerShutdown
         {
             this.LoadTranslations("ServerShutdown.Plugin");
 
-            this.autoRestart = this.CreateConVar("ServerShutdownAutoRestart", "True", "Enale if the server is set up to automatically restart after crashing.").Value;
+            this.autoRestart = this.CreateConVar("ServerShutdownAutoRestart", "True", "Enable if the server is set up to automatically restart after crashing.").Value;
             this.schedule = this.CreateConVar("ServerShutdownSchedule", string.Empty, "The automatic shutdown schedule in the format HH:MM. Separate multiple times with commas.").Value;
             this.countdownTime = this.CreateConVar("ServerShutdownCountdownTime", "5", "The countdown time in minutes for scheduled shutdowns.", true, 1, true, 20).Value;
             this.enableRestartCommand = this.CreateConVar("ServerShutdownEnableRestartCommand", "True", "Enable the restart admin command.").Value;
